@@ -1,0 +1,6 @@
+log:
+  configFile: config/logging.yaml
+secrets:
+  path: secrets
+youtube:
+  batchVideoSize: 25
