@@ -82,7 +82,7 @@ def _is_music_video(video: youtube.model.Video) -> bool:
     suspiciousTitleLength = config.config["youtube"]["suspiciousTitleLength"]
     if len(video.snippet.title) > suspiciousTitleLength:
         shortened_title = f"{video.snippet.title[:suspiciousTitleLength-1]}..."
-        log.warn(
+        log.warning(
             f"Found suspiciously large video title. Ignoring it: '{shortened_title}'"
         )
         return False
