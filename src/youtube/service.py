@@ -79,6 +79,14 @@ def _request_liked_videos(
 
 
 def _is_music_video(video: youtube.model.Video) -> bool:
+    suspiciousTitleLength = config.config["youtube"]["suspiciousTitleLength"]
+    if len(video.snippet.title) > suspiciousTitleLength:
+        shortened_title = f"{video.snippet.title[:suspiciousTitleLength-1]}..."
+        log.warn(
+            f"Found suspiciously large video title. Ignoring it: '{shortened_title}'"
+        )
+        return False
+
     is_music_video = any(
         category.lower().find("music") > 0
         for category in video.topicDetails.topicCategories

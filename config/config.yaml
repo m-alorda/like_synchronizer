@@ -4,3 +4,4 @@ secrets:
   path: secrets
 youtube:
   batchVideoSize: 25
+  suspiciousTitleLength: 255
