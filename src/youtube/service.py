@@ -110,7 +110,3 @@ def get_liked_music_videos() -> Iterable[youtube.model.Video]:
         )
         input(f"Press enter to continue requesting more liked videos: ")
         videos = _request_liked_videos(videos.nextPageToken)
-
-
-if __name__ == "__main__":
-    print(video_title for video_title in get_liked_music_videos())
