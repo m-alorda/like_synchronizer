@@ -1,6 +1,7 @@
 import logging
 
 import youtube.service
+import model
 
 log = logging.getLogger()
 
@@ -8,9 +9,8 @@ log = logging.getLogger()
 def main():
     try:
         for video in youtube.service.get_liked_music_videos():
-            # TODO try to extract video title and artist from the youtube title
-            # https://pypi.org/project/youtube-title-parse/
             log.debug(f"Liked video: '{video.snippet.title}'")
+            song = model.Song.from_video_title(video.snippet.title)
     except KeyboardInterrupt:
         log.info("Finishing execution")
 
