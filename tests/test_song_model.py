@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from src import model
+from like_synchronizer import model
 
 log = logging.getLogger()
 
