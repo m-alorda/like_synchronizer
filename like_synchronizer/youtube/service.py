@@ -17,7 +17,9 @@ _YOUTUBE_API_SCOPES = [
     "https://www.googleapis.com/auth/youtube.readonly",
 ]
 _CACHED_CLIENT_CREDS_FILE = (
-    config.PROJECT_DIR / config.config["secrets"]["path"] / "cached_client_creds.json"
+    config.PROJECT_DIR
+    / config.config["secrets"]["path"]
+    / "cached_youtube_client_creds.json"
 )
 
 

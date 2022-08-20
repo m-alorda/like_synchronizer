@@ -1,5 +1,6 @@
 import logging
 
+import spotify.service
 import youtube.service
 import model
 
@@ -16,4 +17,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    log.info(spotify.service._get_spotify_service().search("lovesick"))
+    # main()
