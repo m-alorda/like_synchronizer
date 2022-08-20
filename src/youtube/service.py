@@ -62,7 +62,7 @@ def _get_youtube_service():
 
 def _request_liked_videos(
     next_page_token: str | None = None,
-) -> youtube.model.VideosData:
+) -> youtube.model.VideosPage:
     log.debug(f"Requesting videos for page {next_page_token}")
     response = (
         _get_youtube_service()
@@ -75,10 +75,10 @@ def _request_liked_videos(
             pageToken=next_page_token,
         )
     ).execute()
-    return youtube.model.VideosData.from_dict(response)
+    return youtube.model.VideosPage.from_dict(response)
 
 
-def _is_music_video(video: youtube.model.LikedVideo) -> bool:
+def _is_music_video(video: youtube.model.Video) -> bool:
     is_music_video = any(
         category.lower().find("music") > 0
         for category in video.topicDetails.topicCategories
@@ -87,7 +87,7 @@ def _is_music_video(video: youtube.model.LikedVideo) -> bool:
     return is_music_video
 
 
-def get_liked_music_videos() -> Iterable[youtube.model.LikedVideo]:
+def get_liked_music_videos() -> Iterable[youtube.model.Video]:
     """Returns the titles of the videos liked by the user"""
     log.info("Requesting music videos liked by the user")
 

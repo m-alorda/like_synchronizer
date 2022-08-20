@@ -26,7 +26,7 @@ class VideoSnippet:
     undefined=dataclasses_json.Undefined.EXCLUDE,
 )
 @dataclasses.dataclass(frozen=True)
-class LikedVideo:
+class Video:
     snippet: VideoSnippet = VideoSnippet(title="")
     topicDetails: VideoTopicDetails = VideoTopicDetails(topicCategories=tuple())
 
@@ -46,7 +46,7 @@ class PageInfo:
     undefined=dataclasses_json.Undefined.EXCLUDE,
 )
 @dataclasses.dataclass(frozen=True)
-class VideosData(dataclasses_json.DataClassJsonMixin):
-    items: tuple[LikedVideo, ...] = tuple()
+class VideosPage(dataclasses_json.DataClassJsonMixin):
+    items: tuple[Video, ...] = tuple()
     pageInfo: PageInfo = PageInfo(totalResults=0, resultsPerPage=0)
     nextPageToken: str | None = None
