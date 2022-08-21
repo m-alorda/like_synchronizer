@@ -17,9 +17,13 @@ loggers:
     level: ERROR
   google_auth_httplib2:
     level: ERROR
+  google_auth_oauthlib:
+    level: ERROR
   spotipy:
     level: ERROR
   urllib3:
+    level: ERROR
+  requests_oauthlib:
     level: ERROR
   youtube_service:
     level: INFO

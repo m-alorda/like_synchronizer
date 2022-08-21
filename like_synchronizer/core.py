@@ -1,21 +1,22 @@
 import logging
 
-import spotify.service
-import youtube.service
-import model
+from like_synchronizer.spotify.service import search_track
+from like_synchronizer.youtube.service import get_liked_music_videos
+from like_synchronizer.model import Song
 
+# TODO create root logger and sub loggers for like_synchronizer
 log = logging.getLogger()
 
-# TODO Rename this file to core.py and add cli with `fire`
-def main():
+
+def youtube_to_spotify():
     try:
-        for video in youtube.service.get_liked_music_videos():
+        for video in get_liked_music_videos():
             log.debug(f"Processing youtube liked video: '{video.snippet.title}'")
-            song = model.Song.from_video_title(video.snippet.title)
+            song = Song.from_video_title(video.snippet.title)
             search_query = f"{song.artist} {song.title}"
             # TODO  Do all this with a context manager?
             #   with spotify.service.BatchLikeProcessor() as x: ...
-            found_tracks = spotify.service.search_track(search_query)
+            found_tracks = search_track(search_query)
             if found_tracks.total <= 0:
                 log.warning("No results found for search: '{search_query}'")
                 # TODO keep for later to manually check
@@ -26,7 +27,3 @@ def main():
             return
     except KeyboardInterrupt:
         log.info("Finishing execution")
-
-
-if __name__ == "__main__":
-    main()

@@ -6,8 +6,8 @@ import google_auth_oauthlib.flow
 import google.oauth2.credentials
 import googleapiclient.discovery
 
-import config
-import youtube.model
+from like_synchronizer.config import PROJECT_DIR, YOUTUBE_SECRET_FILE_PATH, config
+from like_synchronizer.youtube.model import VideosPage, Video
 
 
 log = logging.getLogger("youtube_service")
@@ -17,9 +17,7 @@ _YOUTUBE_API_SCOPES = [
     "https://www.googleapis.com/auth/youtube.readonly",
 ]
 _CACHED_CLIENT_CREDS_FILE = (
-    config.PROJECT_DIR
-    / config.config["secrets"]["path"]
-    / "cached_youtube_client_creds.json"
+    PROJECT_DIR / config["secrets"]["path"] / "cached_youtube_client_creds.json"
 )
 
 
@@ -28,7 +26,7 @@ def _request_user_credentials(
 ) -> google.oauth2.credentials.Credentials:
     log.debug("Requesting new user credentials")
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
-        client_secrets_file=str(config.YOUTUBE_SECRET_FILE_PATH),
+        client_secrets_file=str(YOUTUBE_SECRET_FILE_PATH),
         scopes=_YOUTUBE_API_SCOPES,
     )
     credentials = flow.run_local_server()
@@ -64,7 +62,7 @@ def _get_youtube_service():
 
 def _request_liked_videos(
     next_page_token: str | None = None,
-) -> youtube.model.VideosPage:
+) -> VideosPage:
     log.debug(f"Requesting videos for page {next_page_token}")
     response = (
         _get_youtube_service()
@@ -73,15 +71,15 @@ def _request_liked_videos(
             part="snippet,topicDetails",
             myRating="like",
             fields="items(snippet/title,topicDetails/topicCategories),pageInfo,nextPageToken",
-            maxResults=config.config["youtube"]["batchVideoSize"],
+            maxResults=config["youtube"]["batchVideoSize"],
             pageToken=next_page_token,
         )
     ).execute()
-    return youtube.model.VideosPage.from_dict(response)
+    return VideosPage.from_dict(response)
 
 
-def _is_music_video(video: youtube.model.Video) -> bool:
-    suspiciousTitleLength = config.config["youtube"]["suspiciousTitleLength"]
+def _is_music_video(video: Video) -> bool:
+    suspiciousTitleLength = config["youtube"]["suspiciousTitleLength"]
     if len(video.snippet.title) > suspiciousTitleLength:
         shortened_title = f"{video.snippet.title[:suspiciousTitleLength-1]}..."
         log.warning(
@@ -97,7 +95,7 @@ def _is_music_video(video: youtube.model.Video) -> bool:
     return is_music_video
 
 
-def get_liked_music_videos() -> Iterable[youtube.model.Video]:
+def get_liked_music_videos() -> Iterable[Video]:
     """Returns the titles of the videos liked by the user"""
     log.info("Requesting music videos liked by the user")
 
