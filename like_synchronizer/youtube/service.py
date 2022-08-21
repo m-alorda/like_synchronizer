@@ -108,5 +108,6 @@ def get_liked_music_videos() -> Iterable[Video]:
         log.info(
             f"Processed liked videos {processed_videos}/{videos.pageInfo.totalResults}"
         )
+        # TODO this stop point should not be defined by the service
         input(f"Press enter to continue requesting more liked videos: ")
         videos = _request_liked_videos(videos.nextPageToken)
