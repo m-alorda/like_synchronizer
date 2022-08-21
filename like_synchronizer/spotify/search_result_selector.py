@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 
-from like_synchronizer.spotify.model import TracksResults, Track
+from like_synchronizer.spotify.model import Track
 from like_synchronizer.cleaner import (
     TextCleaner,
     TextCleanerWrapper,
@@ -18,6 +18,8 @@ from like_synchronizer.cleaner import (
     PunctuationRemover,
     StopWordRemover,
 )
+
+MINIMUM_RECOMMENDED_SIMILARITY = 0.8
 
 
 log = logging.getLogger("like_synchronizer.spotify.search_selector")
@@ -62,7 +64,7 @@ def _extract_artist_and_title(track: Track) -> str:
 
 
 def choose_best_search_result(
-    search_query: str, track_results: TracksResults
+    search_query: str, tracks: tuple[Track]
 ) -> tuple[float, Track]:
     """Find the best search result from the given query
 
@@ -70,14 +72,14 @@ def choose_best_search_result(
         highest_similarity (in range [0,1])
         Track with highest_similarity
     """
-    text_tuple = tuple(
+    text_tuple = (
         search_query,
-        *map(_extract_artist_and_title, track_results.items),
+        *map(_extract_artist_and_title, tracks),
     )
     cleaned_text = tuple(map(_clean_text, text_tuple))
     text_vectors = _to_vector_space(cleaned_text)
     similarities = _calculate_similarities(text_vectors[0], text_vectors[1:])
     highest_similarity = max(similarities)
     index_of_highest_similarity = similarities.index(highest_similarity)
-    search_result = track_results.items[index_of_highest_similarity]
+    search_result = tracks[index_of_highest_similarity]
     return highest_similarity, search_result
