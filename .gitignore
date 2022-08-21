@@ -1,4 +1,5 @@
 secrets/
+missed_likes.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
