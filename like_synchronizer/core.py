@@ -2,7 +2,7 @@ import logging
 
 from like_synchronizer.spotify.service import search_track
 from like_synchronizer.youtube.service import get_liked_music_videos
-from like_synchronizer.model import Song
+from like_synchronizer.song import Song
 
 log = logging.getLogger("like_synchronizer.core")
 
