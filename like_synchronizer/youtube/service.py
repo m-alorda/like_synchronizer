@@ -10,7 +10,7 @@ from like_synchronizer.config import PROJECT_DIR, YOUTUBE_SECRET_FILE_PATH, conf
 from like_synchronizer.youtube.model import VideosPage, Video
 
 
-log = logging.getLogger("like_synchronizer.youtube_service")
+log = logging.getLogger("like_synchronizer.youtube.service")
 
 
 _YOUTUBE_API_SCOPES = [

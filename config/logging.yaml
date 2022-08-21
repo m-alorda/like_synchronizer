@@ -27,9 +27,9 @@ loggers:
   requests_oauthlib:
     level: ERROR
   # Own loggers
-  like_synchronizer.youtube_service:
+  like_synchronizer.youtube:
     level: INFO
-  like_synchronizer.spotify_service:
+  like_synchronizer.spotify:
     level: INFO
   like_synchronizer:
     level: DEBUG

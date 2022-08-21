@@ -6,7 +6,7 @@ import spotipy
 from like_synchronizer.config import PROJECT_DIR, config, secret_config
 from like_synchronizer.spotify.model import SearchResults, TracksResults
 
-log = logging.getLogger("like_synchronizer.spotify_service")
+log = logging.getLogger("like_synchronizer.spotify.service")
 
 # See <https://developer.spotify.com/documentation/general/guides/authorization/scopes/>
 _SPOTIFY_API_SCOPES = "user-library-read,user-library-modify"
