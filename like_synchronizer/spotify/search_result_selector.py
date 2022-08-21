@@ -59,8 +59,7 @@ def _cosine_similarity_of_vectors(v1: np.matrix, v2: np.matrix) -> float:
 
 
 def _extract_artist_and_title(track: Track) -> str:
-    artists = " ".join(map(lambda artist: artist.name, track.artists))
-    return f"{artists} {track.name}"
+    return f"{' '.join(track.artists_names)} {track.name}"
 
 
 def choose_best_search_result(

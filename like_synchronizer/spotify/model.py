@@ -37,6 +37,10 @@ class Track:
     popularity: int | None = None
     preview_url: str | None = None
 
+    @property
+    def artists_names(self) -> tuple[str, ...]:
+        return tuple(map(lambda artist: artist.name, self.artists))
+
 
 @dataclasses_json.dataclass_json(
     letter_case=dataclasses_json.LetterCase.SNAKE,
