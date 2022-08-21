@@ -9,7 +9,10 @@ class LikeSynchronizerProxy:
 
 
 def main():
-    fire.Fire(LikeSynchronizerProxy)
+    try:
+        fire.Fire(LikeSynchronizerProxy)
+    except KeyboardInterrupt:
+        print()  # Add new line at the end
 
 
 if __name__ == "__main__":
