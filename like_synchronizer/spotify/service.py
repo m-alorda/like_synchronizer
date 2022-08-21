@@ -1,13 +1,15 @@
 import logging
+from typing import Collection
 
 import spotipy
 
+import spotify.model
 import config
 
 log = logging.getLogger("spotify_service")
 
-
-_SPOTIFY_API_SCOPE = "user-library-read"
+# See <https://developer.spotify.com/documentation/general/guides/authorization/scopes/>
+_SPOTIFY_API_SCOPES = "user-library-read,user-library-modify"
 _CACHED_CLIENT_CREDS_FILE = (
     config.PROJECT_DIR
     / config.config["secrets"]["path"]
@@ -22,9 +24,23 @@ def _get_spotify_service() -> spotipy.Spotify:
             client_id=config.secret_config["spotify"]["clientId"],
             client_secret=config.secret_config["spotify"]["clientSecret"],
             redirect_uri=config.secret_config["spotify"]["redirectURI"],
-            scope=_SPOTIFY_API_SCOPE,
+            scope=_SPOTIFY_API_SCOPES,
             cache_handler=spotipy.CacheFileHandler(
                 cache_path=str(_CACHED_CLIENT_CREDS_FILE)
             ),
         )
     )
+
+
+def search_track(query: str) -> spotify.model.TracksResults:
+    log.debug("Searching: '{query}'")
+    response = _get_spotify_service().search(query, type="track")
+    return spotify.model.SearchResults.from_dict(response).tracks
+
+
+def save_user_tracks(trackIds: Collection[str]) -> None:
+    """Maximum 50 tracks can be saved at a time"""
+    log.debug(f"Saving user tracks {trackIds}")
+    if len(trackIds) > 50:
+        raise ValueError("Cannot save more than 50 tracks at a time")
+    _get_spotify_service().current_user_saved_tracks_add(trackIds)
