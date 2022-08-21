@@ -6,7 +6,10 @@ import spotipy
 from like_synchronizer.config import PROJECT_DIR, config, secret_config
 from like_synchronizer.spotify.model import SearchResults, TracksResults
 
+
 log = logging.getLogger("like_synchronizer.spotify.service")
+
+SPOTIFY_MAX_ALLOWED_BATCH_ITEMS = 50
 
 # See <https://developer.spotify.com/documentation/general/guides/authorization/scopes/>
 _SPOTIFY_API_SCOPES = "user-library-read,user-library-modify"
@@ -39,6 +42,8 @@ def search_track(query: str) -> TracksResults:
 def save_user_tracks(trackIds: Collection[str]) -> None:
     """Maximum 50 tracks can be saved at a time"""
     log.debug(f"Saving user tracks {trackIds}")
-    if len(trackIds) > 50:
-        raise ValueError("Cannot save more than 50 tracks at a time")
+    if len(trackIds) > SPOTIFY_MAX_ALLOWED_BATCH_ITEMS:
+        raise ValueError(
+            f"Cannot save more than {SPOTIFY_MAX_ALLOWED_BATCH_ITEMS} tracks at a time"
+        )
     _get_spotify_service().current_user_saved_tracks_add(trackIds)
