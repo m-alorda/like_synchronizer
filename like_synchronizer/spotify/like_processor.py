@@ -79,7 +79,11 @@ class LikeHandler:
     def like(self, song: Song) -> None:
         self._num_requested_likes += 1
 
-        search_query = f"{song.artist} {song.title}"
+        search_query = (
+            f"{song.artist} {song.title}"
+            if song.artist is not None and song.title is not None
+            else song.original_title
+        )
         found_tracks = search_track(search_query)
 
         if found_tracks.total <= 0:
