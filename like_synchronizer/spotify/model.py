@@ -8,8 +8,8 @@ import dataclasses_json
     undefined=dataclasses_json.Undefined.EXCLUDE,
 )
 @dataclasses.dataclass(frozen=True)
-class ExternalUrl:
-    spotify: str
+class ExternalUrls:
+    spotify: str | None = None
 
 
 @dataclasses_json.dataclass_json(
@@ -20,7 +20,7 @@ class ExternalUrl:
 class Artist:
     name: str
     id: str
-    external_urls: tuple[ExternalUrl, ...]
+    external_urls: ExternalUrls
 
 
 @dataclasses_json.dataclass_json(
@@ -33,7 +33,7 @@ class Track:
     id: str
     artists: tuple[Artist, ...]
     duration_ms: int
-    external_urls: tuple[ExternalUrl, ...]
+    external_urls: ExternalUrls
     popularity: int | None = None
     preview_url: str | None = None
 
