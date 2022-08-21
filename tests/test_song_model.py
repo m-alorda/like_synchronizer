@@ -7,7 +7,7 @@ import pytest
 
 from like_synchronizer import model
 
-log = logging.getLogger()
+log = logging.getLogger("like_synchronizer.test_song_model")
 
 TESTS_DATA_DIR = Path(__file__).absolute().parent / "data"
 

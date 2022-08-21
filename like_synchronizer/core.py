@@ -4,8 +4,7 @@ from like_synchronizer.spotify.service import search_track
 from like_synchronizer.youtube.service import get_liked_music_videos
 from like_synchronizer.model import Song
 
-# TODO create root logger and sub loggers for like_synchronizer
-log = logging.getLogger()
+log = logging.getLogger("like_synchronizer.core")
 
 
 def youtube_to_spotify():

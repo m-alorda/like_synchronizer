@@ -13,6 +13,7 @@ handlers:
     maxBytes: 10_485_760
     backupCount: 3
 loggers:
+  # Library loggers
   googleapiclient:
     level: ERROR
   google_auth_httplib2:
@@ -25,10 +26,13 @@ loggers:
     level: ERROR
   requests_oauthlib:
     level: ERROR
-  youtube_service:
+  # Own loggers
+  like_synchronizer.youtube_service:
     level: INFO
-  spotify_service:
+  like_synchronizer.spotify_service:
     level: INFO
+  like_synchronizer:
+    level: DEBUG
 root:
   level: DEBUG
   handlers:

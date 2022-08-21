@@ -19,7 +19,7 @@ with _LOGGING_CONFIG_FILE.open() as f:
     _logging_config = yaml.safe_load(f)
 logging.config.dictConfig(_logging_config)
 
-log = logging.getLogger()
+log = logging.getLogger("like_synchronizer.config")
 log.debug("Loaded logging config")
 
 _SECRET_CONFIG_FILE = PROJECT_DIR / config["secrets"]["path"] / "config.yaml"
