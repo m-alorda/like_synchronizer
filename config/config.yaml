@@ -3,5 +3,5 @@ log:
 secrets:
   path: secrets
 youtube:
-  batchVideoSize: 25
+  batchVideoSize: 50
   suspiciousTitleLength: 255
