@@ -1,54 +1,16 @@
 import logging
-from pathlib import Path
 from typing import Iterable
 
-import google_auth_oauthlib.flow
-import google.oauth2.credentials
 import googleapiclient.discovery
 
-from like_synchronizer.config import PROJECT_DIR, YOUTUBE_SECRET_FILE_PATH, config
-from like_synchronizer.youtube.model import VideosPage, Video
+from like_synchronizer.config import config
+from like_synchronizer.youtube.credentials_handler import get_user_credentials
+from like_synchronizer.youtube.model.video import VideosPage, Video
+from like_synchronizer.youtube.model.channel import ChannelsPage
+from like_synchronizer.youtube.model.playlist import PlaylistItems
 
 
 log = logging.getLogger("like_synchronizer.youtube.service")
-
-
-_YOUTUBE_API_SCOPES = [
-    "https://www.googleapis.com/auth/youtube.readonly",
-]
-_CACHED_CLIENT_CREDS_FILE = (
-    PROJECT_DIR / config["secrets"]["path"] / "cached_youtube_client_creds.json"
-)
-
-
-def _request_user_credentials(
-    cache_file: Path | None = None,
-) -> google.oauth2.credentials.Credentials:
-    log.debug("Requesting new user credentials")
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
-        client_secrets_file=str(YOUTUBE_SECRET_FILE_PATH),
-        scopes=_YOUTUBE_API_SCOPES,
-    )
-    credentials = flow.run_local_server()
-    if cache_file is not None:
-        with cache_file.open("w") as f:
-            f.write(credentials.to_json())
-    return credentials
-
-
-def _get_user_credentials() -> google.oauth2.credentials.Credentials:
-    if not _CACHED_CLIENT_CREDS_FILE.exists():
-        return _request_user_credentials(_CACHED_CLIENT_CREDS_FILE)
-
-    credentials = google.oauth2.credentials.Credentials.from_authorized_user_file(
-        filename=str(_CACHED_CLIENT_CREDS_FILE),
-        scopes=_YOUTUBE_API_SCOPES,
-    )
-    if not credentials.valid:
-        log.debug("Cached user credentials are invalid or expired. Requesting again")
-        return _request_user_credentials(_CACHED_CLIENT_CREDS_FILE)
-    log.debug("Returning cached user credentials")
-    return credentials
 
 
 def _get_youtube_service():
@@ -56,25 +18,43 @@ def _get_youtube_service():
     return googleapiclient.discovery.build(
         serviceName="youtube",
         version="v3",
-        credentials=_get_user_credentials(),
+        credentials=get_user_credentials(),
     )
 
 
-def _request_liked_videos(
-    next_page_token: str | None = None,
-) -> VideosPage:
-    log.debug(f"Requesting videos for page {next_page_token}")
+def _request_playlist_videos(
+    playlist_id: str,
+    page_token: str | None = None,
+) -> PlaylistItems:
+    log.debug(f"Requesting playlist videos {playlist_id} for page {page_token}")
+    response = (
+        _get_youtube_service()
+        .playlistItems()
+        .list(
+            playlistId=playlist_id,
+            part="contentDetails",
+            fields="items(contentDetails/videoId),pageInfo,nextPageToken",
+            maxResults=config["youtube"]["batchVideoSize"],
+            pageToken=page_token,
+        )
+        .execute()
+    )
+    return PlaylistItems.from_dict(response)
+
+
+def _request_videos(ids: Iterable[str]) -> VideosPage:
+    log.debug(f"Requesting videos {ids}")
     response = (
         _get_youtube_service()
         .videos()
         .list(
             part="snippet,topicDetails",
-            myRating="like",
-            fields="items(snippet/title,topicDetails/topicCategories),pageInfo,nextPageToken",
+            id=list(ids),
+            fields="items(snippet/title,topicDetails/topicCategories)",
             maxResults=config["youtube"]["batchVideoSize"],
-            pageToken=next_page_token,
         )
-    ).execute()
+        .execute()
+    )
     return VideosPage.from_dict(response)
 
 
@@ -95,23 +75,44 @@ def _is_music_video(video: Video) -> bool:
     return is_music_video
 
 
+def _request_liked_videos_playlist_id() -> str:
+    response = (
+        _get_youtube_service()
+        .channels()
+        .list(
+            part="contentDetails",
+            mine=True,
+            fields="items(contentDetails/relatedPlaylists)",
+        )
+        .execute()
+    )
+    channels = ChannelsPage.from_dict(response)
+    user_channel = channels.items[0]
+    return user_channel.contentDetails.relatedPlaylists["likes"]
+
+
 def get_liked_music_videos() -> Iterable[Video]:
     """Returns the titles of the videos liked by the user"""
     log.info("Requesting music videos liked by the user")
-
-    videos = _request_liked_videos()
+    playlist_id = _request_liked_videos_playlist_id()
+    playlist_videos = _request_playlist_videos(playlist_id)
     processed_videos = 0
-    log.info(f"Liked videos found: {videos.pageInfo.totalResults}")
-    while processed_videos < videos.pageInfo.totalResults:
+    log.info(f"Liked videos found: {playlist_videos.pageInfo.totalResults}")
+    while processed_videos < playlist_videos.pageInfo.totalResults:
+        videos = _request_videos(
+            video.contentDetails.videoId for video in playlist_videos.items
+        )
         yield from filter(_is_music_video, videos.items)
-        processed_videos += videos.pageInfo.resultsPerPage
+        processed_videos += len(playlist_videos.items)
         log.info(
-            f"Processed liked videos {processed_videos}/{videos.pageInfo.totalResults}"
+            f"Processed liked videos {processed_videos}/{playlist_videos.pageInfo.totalResults}"
         )
         if (
-            videos.nextPageToken is None
-            and processed_videos < videos.pageInfo.totalResults
+            playlist_videos.nextPageToken is None
+            and processed_videos < playlist_videos.pageInfo.totalResults
         ):
             log.warn(f"The API is not returning any more results")
             break
-        videos = _request_liked_videos(videos.nextPageToken)
+        playlist_videos = _request_playlist_videos(
+            playlist_id, playlist_videos.nextPageToken
+        )
