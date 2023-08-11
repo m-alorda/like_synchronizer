@@ -9,5 +9,5 @@ import dataclasses_json
 )
 @dataclasses.dataclass(frozen=True)
 class PageInfo:
-    totalResults: int
-    resultsPerPage: int
+    total_results: int
+    results_per_page: int

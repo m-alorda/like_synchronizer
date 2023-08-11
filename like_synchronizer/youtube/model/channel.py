@@ -9,7 +9,7 @@ import dataclasses_json
 )
 @dataclasses.dataclass(frozen=True)
 class ChannelDetails(dataclasses_json.DataClassJsonMixin):
-    relatedPlaylists: dict[str, str] = dataclasses.field(default_factory=dict)
+    related_playlists: dict[str, str] = dataclasses.field(default_factory=dict)
 
 
 @dataclasses_json.dataclass_json(
@@ -18,7 +18,7 @@ class ChannelDetails(dataclasses_json.DataClassJsonMixin):
 )
 @dataclasses.dataclass(frozen=True)
 class Channel(dataclasses_json.DataClassJsonMixin):
-    contentDetails: ChannelDetails = ChannelDetails()
+    content_details: ChannelDetails = ChannelDetails()
 
 
 @dataclasses_json.dataclass_json(

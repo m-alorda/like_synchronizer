@@ -11,7 +11,7 @@ from like_synchronizer.youtube.model.common import PageInfo
 )
 @dataclasses.dataclass(frozen=True)
 class VideoTopicDetails:
-    topicCategories: tuple[str, ...]
+    topic_categories: tuple[str, ...]
 
 
 @dataclasses_json.dataclass_json(
@@ -30,7 +30,7 @@ class VideoSnippet:
 @dataclasses.dataclass(frozen=True)
 class Video:
     snippet: VideoSnippet = VideoSnippet(title="")
-    topicDetails: VideoTopicDetails = VideoTopicDetails(topicCategories=tuple())
+    topic_details: VideoTopicDetails = VideoTopicDetails(topic_categories=tuple())
 
 
 @dataclasses_json.dataclass_json(
@@ -40,5 +40,5 @@ class Video:
 @dataclasses.dataclass(frozen=True)
 class VideosPage(dataclasses_json.DataClassJsonMixin):
     items: tuple[Video, ...] = tuple()
-    pageInfo: PageInfo = PageInfo(totalResults=0, resultsPerPage=0)
-    nextPageToken: str | None = None
+    page_info: PageInfo = PageInfo(total_results=0, results_per_page=0)
+    next_page_token: str | None = None

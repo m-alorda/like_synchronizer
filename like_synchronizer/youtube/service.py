@@ -59,9 +59,9 @@ def _request_videos(ids: Iterable[str]) -> VideosPage:
 
 
 def _is_music_video(video: Video) -> bool:
-    suspiciousTitleLength = config["youtube"]["suspiciousTitleLength"]
-    if len(video.snippet.title) > suspiciousTitleLength:
-        shortened_title = f"{video.snippet.title[:suspiciousTitleLength-1]}..."
+    suspicious_title_length = config["youtube"]["suspiciousTitleLength"]
+    if len(video.snippet.title) > suspicious_title_length:
+        shortened_title = f"{video.snippet.title[:suspicious_title_length-1]}..."
         log.warning(
             f"Found suspiciously large video title. Ignoring it: '{shortened_title}'"
         )
@@ -69,7 +69,7 @@ def _is_music_video(video: Video) -> bool:
 
     is_music_video = any(
         category.lower().find("music") > 0
-        for category in video.topicDetails.topicCategories
+        for category in video.topic_details.topic_categories
     )
     log.debug(f"Video '{video.snippet.title}' is music video: {is_music_video}")
     return is_music_video
@@ -88,7 +88,7 @@ def _request_liked_videos_playlist_id() -> str:
     )
     channels = ChannelsPage.from_dict(response)
     user_channel = channels.items[0]
-    return user_channel.contentDetails.relatedPlaylists["likes"]
+    return user_channel.content_details.related_playlists["likes"]
 
 
 def get_liked_music_videos() -> Iterable[Video]:
@@ -97,22 +97,22 @@ def get_liked_music_videos() -> Iterable[Video]:
     playlist_id = _request_liked_videos_playlist_id()
     playlist_videos = _request_playlist_videos(playlist_id)
     processed_videos = 0
-    log.info(f"Liked videos found: {playlist_videos.pageInfo.totalResults}")
-    while processed_videos < playlist_videos.pageInfo.totalResults:
+    log.info(f"Liked videos found: {playlist_videos.page_info.total_results}")
+    while processed_videos < playlist_videos.page_info.total_results:
         videos = _request_videos(
-            video.contentDetails.videoId for video in playlist_videos.items
+            video.content_details.video_id for video in playlist_videos.items
         )
         yield from (video for video in videos.items if _is_music_video(video))
         processed_videos += len(playlist_videos.items)
         log.info(
-            f"Processed liked videos {processed_videos}/{playlist_videos.pageInfo.totalResults}"
+            f"Processed liked videos {processed_videos}/{playlist_videos.page_info.total_results}"
         )
         if (
-            playlist_videos.nextPageToken is None
-            and processed_videos < playlist_videos.pageInfo.totalResults
+            playlist_videos.next_page_token is None
+            and processed_videos < playlist_videos.page_info.total_results
         ):
             log.warn(f"The API is not returning any more results")
             break
         playlist_videos = _request_playlist_videos(
-            playlist_id, playlist_videos.nextPageToken
+            playlist_id, playlist_videos.next_page_token
         )
