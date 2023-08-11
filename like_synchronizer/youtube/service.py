@@ -108,4 +108,10 @@ def get_liked_music_videos() -> Iterable[Video]:
         log.info(
             f"Processed liked videos {processed_videos}/{videos.pageInfo.totalResults}"
         )
+        if (
+            videos.nextPageToken is None
+            and processed_videos < videos.pageInfo.totalResults
+        ):
+            log.warn(f"The API is not returning any more results")
+            break
         videos = _request_liked_videos(videos.nextPageToken)
