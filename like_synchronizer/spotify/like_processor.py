@@ -113,10 +113,7 @@ class LikeHandler:
         log.info(f"Current number of requested likes: {self._num_requested_likes}")
         log.info(f"Writing missed likes to file '{not_found_likes_file}'")
         missed_likes_as_dict = tuple(
-            map(
-                lambda missed_like: missed_like.to_dict(),
-                self._missed_likes,
-            )
+            missed_like.to_dict() for missed_like in self._missed_likes
         )
         with not_found_likes_file.open("w") as f:
             json.dump(missed_likes_as_dict, f)

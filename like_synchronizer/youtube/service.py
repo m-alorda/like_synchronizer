@@ -102,7 +102,7 @@ def get_liked_music_videos() -> Iterable[Video]:
         videos = _request_videos(
             video.contentDetails.videoId for video in playlist_videos.items
         )
-        yield from filter(_is_music_video, videos.items)
+        yield from (video for video in videos.items if _is_music_video(video))
         processed_videos += len(playlist_videos.items)
         log.info(
             f"Processed liked videos {processed_videos}/{playlist_videos.pageInfo.totalResults}"

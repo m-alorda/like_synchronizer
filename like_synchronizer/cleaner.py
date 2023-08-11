@@ -49,7 +49,7 @@ class StopWordRemover:
             LowerCaseConverter(),
             PunctuationRemover(),
         )
-        return set(map(stop_word_cleaner.clean, stopwords.words()))
+        return set(stop_word_cleaner.clean(word) for word in stopwords.words())
 
     try:
         _STOP_WORDS = _create_stop_words()

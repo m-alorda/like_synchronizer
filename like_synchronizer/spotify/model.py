@@ -39,7 +39,7 @@ class Track:
 
     @property
     def artists_names(self) -> tuple[str, ...]:
-        return tuple(map(lambda artist: artist.name, self.artists))
+        return tuple(artist.name for artist in self.artists)
 
 
 @dataclasses_json.dataclass_json(

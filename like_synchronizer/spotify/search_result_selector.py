@@ -73,9 +73,9 @@ def choose_best_search_result(
     """
     text_tuple = (
         search_query,
-        *map(_extract_artist_and_title, tracks),
+        *(_extract_artist_and_title(track) for track in tracks),
     )
-    cleaned_text = tuple(map(_clean_text, text_tuple))
+    cleaned_text = tuple(_clean_text(text) for text in text_tuple)
     text_vectors = _to_vector_space(cleaned_text)
     similarities = _calculate_similarities(text_vectors[0], text_vectors[1:])
     highest_similarity = max(similarities)
